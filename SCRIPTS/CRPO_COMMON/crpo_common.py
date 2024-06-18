@@ -10,12 +10,14 @@ class CrpoCommon:
 
     @staticmethod
     def login_to_crpo(login_name, password, tenant):
-        header = {"content-type": "application/json"}
+        header = {"content-type": "application/json", "X-Applma": "true"}
         data = {"LoginName": login_name, "Password": password, "TenantAlias": tenant, "UserName": login_name}
         response = requests.post(crpo_common_obj.domain + "/py/common/user/login_user/", headers=header,
                                  data=json.dumps(data), verify=False)
         login_response = response.json()
-        headers = {"content-type": "application/json", "APP-NAME": "CRPO", "X-APPLMA": "true",
+        print("login_to_crpo")
+        print(response.headers.get('X-APP_NODE'))
+        headers = {"content-type": "application/json", "APP-NAME": "CRPO", "X-Applma": "true",
                    "X-AUTH-TOKEN": login_response.get("Token")}
         print(headers)
         return headers
@@ -42,6 +44,8 @@ class CrpoCommon:
         response = requests.post(crpo_common_obj.domain + "/py/assessment/report/api/v1/candidatetranscript/",
                                  headers=token,
                                  data=json.dumps(request, default=str), verify=False)
+        print("candidate_web_transcript")
+        print(response.headers.get('X-APP_NODE'))
         return response.json()
 
     @staticmethod
@@ -52,6 +56,8 @@ class CrpoCommon:
                                  "/py/assessment/htmltest/api/v1/initiate-test-proc/?isSync=false",
                                  headers=token,
                                  data=json.dumps(request, default=str), verify=False)
+        print("force_evaluate_proctoring")
+        print(response.headers.get('X-APP_NODE'))
         return response.json()
 
     # interviews Grid
@@ -82,6 +88,8 @@ class CrpoCommon:
         print(request)
         response = requests.post(crpo_common_obj.domain + "/py/crpo/api/v1/getStatusOfAsyncAPI",
                                  headers=token, data=json.dumps(request, default=str), verify=False)
+        print("job_status")
+        print(response.headers.get('X-APP_NODE'))
         resp_dict = json.loads(response.content)
         print(resp_dict)
         return resp_dict
@@ -110,6 +118,16 @@ class CrpoCommon:
             response = requests.post(crpo_common_obj.domain + "/py/assessment/testuser/api/v1/un-tag/",
                                      headers=token,
                                      data=json.dumps(request, default=str), verify=False)
+        print(response)
+
+    # @staticmethod
+    # def untag_candidate2(token, data1):
+    #     request = {"testUserIds": [data1]}
+    #     response = requests.post(crpo_common_obj.domain + "/py/assessment/testuser/api/v1/un-tag/",
+    #                              headers=token,
+    #                              data=json.dumps(request, default=str), verify=False)
+    #     return response
+
 
     @staticmethod
     def proctor_evaluation_detail(token, testuser_id):
@@ -119,6 +137,8 @@ class CrpoCommon:
                                  headers=token,
                                  data=json.dumps(request, default=str), verify=False)
         time.sleep(10)
+        print("proctor_evaluation_detail")
+        print(response.headers.get('X-APP_NODE'))
         tu_proctor_details = response.json()
         print(tu_proctor_details)
         return tu_proctor_details
@@ -129,6 +149,8 @@ class CrpoCommon:
 
         response = requests.post("https://amsin.hirepro.in/py/common/common_app_utils/save_app_preferences/",
                                  headers=token, data=json.dumps(data, default=str), verify=False)
+        print("save_appreferences")
+        print(response.headers.get('X-APP_NODE'))
         return response.json()
 
     @staticmethod
@@ -138,6 +160,17 @@ class CrpoCommon:
         response = requests.post(crpo_common_obj.domain + "/py/assessment/testuser/api/v1/re_initiate_automation/",
                                  headers=token,
                                  data=json.dumps(request, default=str), verify=False)
+
+    @staticmethod
+    def sanitise_tu_automation(token, test_user_id):
+        token.pop('X-APPLMA', None)
+        request = {"testUserId": test_user_id}
+        response = requests.post(crpo_common_obj.domain + "/py/assessment/testuser/api/v1/sanitise_tu_automation/",
+                                 headers=token,
+                                 data=json.dumps(request, default=str), verify=False)
+        data = response.json()
+        print(data)
+        return data
 
     @staticmethod
     def get_all_questions(token, request_data):
@@ -263,6 +296,8 @@ class CrpoCommon:
         response = requests.post(crpo_common_obj.domain + "/py/assessment/authoring/api/v1/getQuestionForId/",
                                  headers=token,
                                  data=json.dumps(request, default=str), verify=False)
+        print("get_question_for_id")
+        print(response.headers.get('X-APP_NODE'))
         question_id_details = response.json()
         return question_id_details
 
@@ -274,6 +309,8 @@ class CrpoCommon:
             crpo_common_obj.domain + "/py/assessment/report/api/v1/question_statistics/?isSync=false",
             headers=token,
             data=json.dumps(request, default=str), verify=False)
+        print("calculate_question_stats")
+        print(response.headers.get('X-APP_NODE'))
         question_status = response.json()
         question_status_context_id = question_status['data']['ContextId']
         return question_status_context_id
@@ -286,6 +323,8 @@ class CrpoCommon:
             crpo_common_obj.domain + "/py/assessment/report/api/v1/hirepro_question_stats_api/",
             headers=token,
             data=json.dumps(request, default=str), verify=False)
+        print("calculate_hirepro_question_stats")
+        print(response.headers.get('X-APP_NODE'))
         question_status = response.json()
         question_status_context_id = question_status['data']['ContextId']
         return question_status_context_id
@@ -297,6 +336,8 @@ class CrpoCommon:
             crpo_common_obj.domain + "/py/assessment/report/api/v1/question_statistics_for_tests/?isSync=false",
             headers=token,
             data=json.dumps(request, default=str), verify=False)
+        print("calculate_question_stats_for_tests")
+        print(response.headers.get('X-APP_NODE'))
         question_stats = response.json()
         test_question_stats_context_id = question_stats['data']['ContextId']
         return test_question_stats_context_id
@@ -308,6 +349,17 @@ class CrpoCommon:
                                  data=json.dumps(payload, default=str), verify=False)
         test_user_infos = response.json()
         return test_user_infos
+
+    @staticmethod
+    def tests_against_candidate(token, candidateid):
+        payload = {"CandidateId": candidateid}
+        response = requests.post(crpo_common_obj.domain + "/py/assessment/test/api/v1/tests-against-candidate/",
+                                 headers=token,
+                                 data=json.dumps(payload, default=str), verify=False)
+        test_infos = response.json()
+        print(test_infos)
+        return test_infos
+
 
     @staticmethod
     def search_test_user_by_cid_and_testid(token, cid, test_id):
